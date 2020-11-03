@@ -32,7 +32,6 @@ class UserCount(View):
     def get(self, request):
         res = requests.get(self.url).text
         for i in json.loads(res):
-            print(i)
             if i.get("nodeId"):
                 if(i["nodeId"] == "okapi01"):
                     self.okapi01.append(i["nodeId"])
@@ -104,18 +103,52 @@ class news_review(View):
         }
         return render(request, 'clsp/news_review.html',context=data)
 
+class tenant_list(View):
+
+    def __init__(self):
+        self.url = "http://39.106.33.252:9130/_/proxy/tenants"
+
+    def get(self, request):
+        p = request.GET.get("p")
+        p = 5
+        response = requests.get(self.url).text
+        total_page = len(json.loads(response)) / 20
+        res = json.loads(response)[(p - 1) * 10:p * 10 ]
+
+        data = {
+            "modules": res,
+            "total_page": 50,
+            "current_page": 8
+        }
+        return render(request, 'clsp/tenant_list.html', context=json.dumps(data))
+def pagation(request):
+    url = "http://39.106.33.252:9130/_/proxy/tenants"
+    p = request.GET.get("p")
+    response = requests.get(url).text
+    total_page = json.loads(response)/20
+    res = json.loads(response)[(p-1)*10:p*10-1]
+    data = {
+        "total_page": total_page,
+        "current_page": p,
+        "users": res
+    }
+    return JsonResponse(data)
+
+
+
+
 def news_type(request):
-    print("123")
+
     return render(request, 'clsp/news_type.html')
 
 
 def news_edit(request):
-    print("123")
+
     return render(request, 'clsp/news_edit.html')
 
 
 def news_review_detail(request):
-    print("123")
+
     return render(request, 'clsp/news_review_detail.html')
 
 
