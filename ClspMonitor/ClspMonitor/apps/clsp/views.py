@@ -1,35 +1,122 @@
+import json
+
 from django.shortcuts import render
 import os
 from django.views.generic import View
 from django.http import HttpResponse
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
-from clsp import models
+from clsp.models import Modules,Nodes
+import requests
 from django.http import JsonResponse
+from django.forms.models import model_to_dict
+from django.core import serializers
 from rest_framework.views import APIView
+import logging
 # Create your views here.
+
+logger = logging.getLogger("django")
 
 
 def index(request):
-    # return  HttpResponse("ok")
-    res = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    a = request.GET.get('a')
-    print(a)
-    return render(request, 'clsp/index.html', context={"name": res})
+    return render(request, 'clsp/index.html')
 
 
-def user_count(request):
+class UserCount(View):
+    def __init__(self):
+        self.url = 'http://39.106.33.252:9130/_/discovery/modules'
+        self.okapi01 = []
+        self.okapi02 = []
+        self.okapi03 = []
 
-    return render(request, 'clsp/user_count.html')
+    def get(self, request):
+        res = requests.get(self.url).text
+        for i in json.loads(res):
+            print(i)
+            if i.get("nodeId"):
+                if(i["nodeId"] == "okapi01"):
+                    self.okapi01.append(i["nodeId"])
+                elif(i["nodeId"] == "okapi02"):
+                    self.okapi02.append(i["nodeId"])
+                elif (i["nodeId"] == "okapi03"):
+                    self.okapi03.append(i["nodeId"])
+            elif i.get("srvcId"):
+                if(i["srvcId"].count("okapi01") != -1):
+                    self.okapi01.append("okapi01")
+                elif(i["srvcId"].count("okapi02") != -1):
+                    self.okapi01.append("okapi02")
+                elif (i["srvcId"].count("okapi03") != -1):
+                    self.okapi01.append("okapi03")
+
+        data = {
+            "okapi01":len(self.okapi01),
+            "okapi02":len(self.okapi02),
+            "okapi03":len(self.okapi03),
+        }
+        return render(request, 'clsp/user_count.html',context=data)
+
+class user_list(View):
+
+    def __init__(self):
+        self.url = 'http://39.106.33.252:9130/_/discovery/modules'
+        self.instances = {}
+        self.okapi01 = []
+        self.okapi02 = []
+        self.okapi03 = []
+
+    def get(self, request):
+        res = requests.get(self.url).text
+        result = json.loads(res)
+        for i in result:
+            if i.get("nodeId"):
+                if (i["nodeId"] == "okapi01"):
+                    self.okapi01.append(i["nodeId"])
+                elif (i["nodeId"] == "okapi02"):
+                    self.okapi02.append(i["nodeId"])
+                elif (i["nodeId"] == "okapi03"):
+                    self.okapi03.append(i["nodeId"])
+            elif i.get("srvcId"):
+                if (i["srvcId"].count("okapi01") != -1):
+                    self.okapi01.append("okapi01")
+                elif (i["srvcId"].count("okapi02") != -1):
+                    self.okapi01.append("okapi02")
+                elif (i["srvcId"].count("okapi03") != -1):
+                    self.okapi01.append("okapi03")
+        data = {
+            "okapi01": len(self.okapi01),
+            "okapi02": len(self.okapi02),
+            "okapi03": len(self.okapi03),
+            "ins":result
+        }
+        return render(request, 'clsp/user_list.html', context=data)
 
 
-def user_list(request):
+class news_review(View):
 
-    return render(request, 'clsp/user_list.html')
+    def __init__(self):
+        self.url = "http://39.106.33.252/okapia/_/proxy/modules"
+
+    def get(self, request):
+        response = requests.get(self.url).text
+
+        data = {
+            "modules": json.loads(response)
+        }
+        return render(request, 'clsp/news_review.html',context=data)
+
+def news_type(request):
+    print("123")
+    return render(request, 'clsp/news_type.html')
 
 
-def news_review(request):
-    return render(request, 'clsp/news_review.html')
+def news_edit(request):
+    print("123")
+    return render(request, 'clsp/news_edit.html')
+
+
+def news_review_detail(request):
+    print("123")
+    return render(request, 'clsp/news_review_detail.html')
 
 
 class RegisterView(View):
@@ -47,40 +134,3 @@ def middleware(request):
     print('view 视图被调用')
     return HttpResponse('OK')
 
-
-class AuthView(APIView):
-
-    def post(self,request,*args,**kwargs):
-        ret = {'code':1000,'msg':None}
-        try:
-            # 参数是datadict 形式
-            usr = request.data.get('username')
-            pas = request.data.get('password')
-
-            # usr = request._request.POST.get('username')
-            # pas = request._request.POST.get('password')
-
-            # usr = request.POST.get('username')
-            # pas = request.POST.get('password')
-
-            print(usr)
-            # obj = models.User.objects.filter(username='yang', password='123456').first()
-            obj = models.User.objects.filter(username=usr,password=pas).first()
-            print(obj)
-            print(type(obj))
-            print(obj.username)
-            print(obj.password)
-            if not obj:
-                ret['code'] = '1001'
-                ret['msg'] = '用户名或者密码错误'
-                return JsonResponse(ret)
-                # 里为了简单，应该是进行加密，再加上其他参数
-            token = usr
-            print(token)
-            models.userToken.objects.update_or_create(username=obj, defaults={'token': token})
-            ret['msg'] = '登录成功'
-            #ret['token'] = token
-        except Exception as e:
-            ret['code'] = 1002
-            ret['msg'] = '请求异常'
-        return JsonResponse(ret)

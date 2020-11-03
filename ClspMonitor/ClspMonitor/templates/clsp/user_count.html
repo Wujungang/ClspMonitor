@@ -9,26 +9,28 @@
 </head>
 <body>
 	<div class="breadcrub">
-		当前位置：用户管理>用户统计
+		当前位置：模块管理>实例统计
 	</div>
 	<div class="spannels">
 		<div class="spannel scolor01">
-			<em>36365</em><span>人</span>
-			<b>用户总数</b>
+			<em>{{ okapi01 }}</em><span>例</span>
+			<b>okapi01</b>
 		</div>
 		<div class="spannel scolor02">
-			<em>146</em><span>人</span>
-			<b>用户月新增数</b>
+			<em>{{ okapi02 }}</em><span>例</span>
+			<b>okapi02</b>
 		</div>
 		<div class="spannel2 scolor03">
-			<em>32</em><span>人</span>
-			<b>用户日新增数</b>
+			<em>{{ okapi03 }}</em><span>例</span>
+			<b>okapi03</b>
 		</div>		
 	</div>
 	
 	<div class="pannel">
-		<div id="chart_show" class="chart_show"></div>
+		<div  id="chart_show" class="chart_show"></div>
 	</div>
+
+
 	<script>
 		var oChart = echarts.init(document.getElementById('chart_show'));
 		var chartopt = {
@@ -60,12 +62,12 @@
 		                        name: '今天',
 					            type : 'category',
 					            boundaryGap : false,
-					            data : ["08:15","09:15","10:15","11:15","12:15","13:15","14:15","15:15","16:15","17:15","18:15","19:15"]
+					            data : ["08:15","09:15","10:15","11:15","12:15","13:15","14:15","15:15","16:15","17:15","18:15","18.37","19:15"]
 					        }
 					    ],        
 					    yAxis : [
 					        {
-		                        name: '活跃用户数量',
+		                        name: 'bps',
 					            type : 'value'
 					        }
 					    ],      
@@ -75,7 +77,7 @@
 					            type:'line',
 					            smooth:true,
 					            itemStyle: {normal: {areaStyle: {type: 'default'}, color: '#f80'}, lineStyle: {color: '#f80'}},
-					            data:[14951,14861,7186,15861,14951,14861,7186,14951,14861,7186,15861,14951]
+					            data:[14951,14861,7186,15861,14951,14861,7186,14951,14861,7186,15861,14951,5]
 					        }],
 					    areaStyle:{
 						        normal:{
