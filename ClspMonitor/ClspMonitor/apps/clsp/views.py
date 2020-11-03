@@ -110,17 +110,20 @@ class tenant_list(View):
 
     def get(self, request):
         p = request.GET.get("p")
-        p = 5
+        if p == None:
+            p = 1
+        print(p)
         response = requests.get(self.url).text
-        total_page = len(json.loads(response)) / 20
-        res = json.loads(response)[(p - 1) * 10:p * 10 ]
+        total_page = int(len(json.loads(response)) / 10) +1
+        print(total_page)
+        res = json.loads(response)[(int(p) - 1) * 10:int(p) * 10 ]
 
         data = {
             "modules": res,
-            "total_page": 50,
-            "current_page": 8
+            "total_page": total_page,
+            "current_page": p
         }
-        return render(request, 'clsp/tenant_list.html', context=json.dumps(data))
+        return render(request, 'clsp/tenant_list.html', context=data)
 def pagation(request):
     url = "http://39.106.33.252:9130/_/proxy/tenants"
     p = request.GET.get("p")
