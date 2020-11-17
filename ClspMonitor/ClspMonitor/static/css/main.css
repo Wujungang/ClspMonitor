@@ -390,7 +390,7 @@ body{
     color:#fff;
 }
 
-.review,.edit,.addtype{
+.review,.edit,.addtype,.insert,.delete{
 	display:block;
 	width:40px;
 	line-height:20px;
@@ -405,9 +405,10 @@ body{
 	line-height:26px;
 }
 
-.edit{
+.edit,.insert111,.delete{
 	background:#25c192;
 }
+
 
 .common_table .tleft{
 	text-align:left;
@@ -559,7 +560,7 @@ body{
 	display:none;
 }
 
-.input_txt3{
+.input_txt3,.input_txt4,.input_txt5{
   width:298px;
   height:32px;
   border:1px solid #d0d0d0;

@@ -128,7 +128,6 @@ class Modules(models.Model):
     class Meta:
         managed = False
         db_table = 'modules'
-        verbose_name_plural = '模块信息'
 
     def __str__(self):
         return self.mod_name
@@ -139,15 +138,13 @@ class Nodes(models.Model):
     host_name = models.CharField(max_length=255, blank=True, null=True)
     node_name = models.CharField(max_length=255, blank=True, null=True)
     pass_word = models.CharField(max_length=255, blank=True, null=True)
+    describe = models.CharField(max_length=255, blank=True, null=True)
     pri_key = models.TextField(blank=True, null=True)
+    module = models.ForeignKey(Modules, models.DO_NOTHING, db_column='module', blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'nodes'
-        verbose_name_plural = '节点信息'
-
-    def __str__(self):
-        return self.host_name
 
 
 class User(models.Model):

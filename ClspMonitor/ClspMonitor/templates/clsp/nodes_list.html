@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>新经资讯后台管理</title>
+	<link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+	<link rel="stylesheet" type="text/css" href="/static/css/main.css">
+	<link rel="stylesheet" href="/static/css/jquery.pagination.css">
+	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
+	<script type="text/javascript" src="/static/js/jquery.pagination.min.js"></script>
+	<script type="text/javascript" src="/static/js/nodes_list.js"></script>
+
+</head>
+<body>
+	<div class="breadcrub">
+			当前位置：租客管理>租客列表
+			<form class="news_filter_form">
+<!--				<input type="text" placeholder="请输入关键字" class="input_txt">-->
+				<input type="button" value="新 增" class="input_sub">
+			</form>
+		</div>
+		<div class="pannel">
+			<table class="common_table">
+				<tr>
+					<th width="3%">id</th>
+					<th width="15%">ip</th>
+					<th width="17%">hostname</th>
+					<th width="30%">describe</th>
+					<th colspan="3">管理操作</th>
+				</tr>
+				{% for item in res %}
+				<tr>
+					<td>{{item.id}}</td>
+					<td class="tleft" style="text-align: center">{{ item.ip }}</td>
+					<td>{{ item.host_name }}</td>
+					<td >{{ item.describe }}</td>
+					<td>
+						<a href="javascript:;" class="edit">修改</a>
+					</td>
+					<td>
+						<a style="display:block;width:40px;line-height:20px;margin:-5px auto;border-radius:4px;color:#fff;background:#25c192;"
+						   href="javascript:;" class="delete">删除</a>
+					</td>
+				</tr>
+				{% endfor %}
+
+			</table>
+		</div>
+
+		<div class="box">
+			<div id="pagination" class="page"></div>
+		</div>
+
+		<div class="pop_con">
+			<div class="pop">
+				<form>
+					<h3>修改分类</h3>
+					<div class="form_group mt50">
+						<label class="input_label">ip：</label><input type="text" class="input_txt3">
+						<label class="input_label">节点名称：</label><input type="text" class="input_txt4">
+						<label class="input_label">描述信息：</label><input style="width:298px;height:32px;border:1px solid #d0d0d0;border-radius:4px;outline:none;text-indent:10px; " type="text" class="input_txt5">
+						<span class="error_tip">提示文字</span>
+
+					</div>
+					<div class="form_group line_top">
+						<input type="button" value="确定" class="confirm">&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="button" value="取消" class="cancel">
+					</div>
+				</form>
+			</div>
+			<div class="mask"></div>
+		</div>
+
+<!--		<div  class="pop_con" id="delete_con">-->
+<!--			<div class="pop">-->
+<!--				<form>-->
+<!--					<h3>删除分类</h3>-->
+<!--					<div class="form_group mt50">-->
+<!--						<h4 align="center">确定删除节点吗？</h4>-->
+<!--					</div>-->
+<!--					<div class="form_group line_top">-->
+<!--						<input type="button" value="确定" class="confirm">&nbsp;&nbsp;&nbsp;&nbsp;-->
+<!--						<input type="button" value="取消" class="cancel">-->
+<!--					</div>-->
+<!--				</form>-->
+<!--			</div>-->
+<!--			<div class="mask"></div>-->
+<!--		</div>-->
+</body>
+<script>
+			var j = parseInt("{{ current_page }}");
+			var jss = parseInt("{{ total_page }}");
+			$(function() {
+				$("#pagination").pagination({
+					currentPage: j,
+					totalPage: jss,
+					callback: function(current) {
+					    window.location.href = '/nodes_list?p=' + current
+					}
+				});
+			});
+		</script>
+</html>

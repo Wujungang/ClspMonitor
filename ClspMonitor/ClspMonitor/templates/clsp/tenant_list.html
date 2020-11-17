@@ -8,20 +8,7 @@
 	<link rel="stylesheet" href="/static/css/jquery.pagination.css">
 	<script type="text/javascript" src="/static/js/jquery-1.12.4.min.js"></script>
 	<script type="text/javascript" src="/static/js/jquery.pagination.min.js"></script>
-	<script>
-			var j = parseInt("{{ current_page }}");
-			var jss = parseInt("{{ total_page }}");
-			$(function() {
-				$("#pagination").pagination({
-					currentPage: j,
-					totalPage: jss,
-					callback: function(current) {
-						alert('/tenant_list?p=' + current)
-					    window.location.href = '/tenant_list?p=' + current
-					}
-				});
-			});
-		</script>
+
 </head>
 <body>
 	<div class="breadcrub">
@@ -63,9 +50,18 @@
 		<div class="box">
 			<div id="pagination" class="page"></div>
 		</div>
-
-
-
-	
 </body>
+<script>
+			var j = parseInt("{{ current_page }}");
+			var jss = parseInt("{{ total_page }}");
+			$(function() {
+				$("#pagination").pagination({
+					currentPage: j,
+					totalPage: jss,
+					callback: function(current) {
+					    window.location.href = '/tenant_list?p=' + current
+					}
+				});
+			});
+		</script>
 </html>

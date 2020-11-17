@@ -1,18 +1,17 @@
 import json
-
 from django.shortcuts import render
-import os
 from django.views.generic import View
 from django.http import HttpResponse
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated,AllowAny,IsAdminUser
-from clsp.models import Modules,Nodes
 import requests
 from django.http import JsonResponse
+from rest_framework.viewsets import ModelViewSet
+from clsp.serializers import *
+from clsp.models import *
 from django.forms.models import model_to_dict
-from django.core import serializers
-from rest_framework.views import APIView
 import logging
+
 # Create your views here.
 
 logger = logging.getLogger("django")
@@ -33,7 +32,7 @@ class UserCount(View):
         res = requests.get(self.url).text
         for i in json.loads(res):
             if i.get("nodeId"):
-                if(i["nodeId"] == "okapi01"):
+                if(i["nodeId"]== "okapi01"):
                     self.okapi01.append(i["nodeId"])
                 elif(i["nodeId"] == "okapi02"):
                     self.okapi02.append(i["nodeId"])
@@ -112,31 +111,50 @@ class tenant_list(View):
         p = request.GET.get("p")
         if p == None:
             p = 1
-        print(p)
         response = requests.get(self.url).text
         total_page = int(len(json.loads(response)) / 10) +1
-        print(total_page)
         res = json.loads(response)[(int(p) - 1) * 10:int(p) * 10 ]
-
         data = {
             "modules": res,
             "total_page": total_page,
             "current_page": p
         }
         return render(request, 'clsp/tenant_list.html', context=data)
-def pagation(request):
-    url = "http://39.106.33.252:9130/_/proxy/tenants"
-    p = request.GET.get("p")
-    response = requests.get(url).text
-    total_page = json.loads(response)/20
-    res = json.loads(response)[(p-1)*10:p*10-1]
-    data = {
-        "total_page": total_page,
-        "current_page": p,
-        "users": res
-    }
-    return JsonResponse(data)
 
+
+class NodeInfoViewSet(ModelViewSet):
+
+    queryset = Nodes.objects.all()
+    serializer_class = NodeInfoSerializer
+
+from django.core import serializers
+class node_list(View):
+
+    def get(self, request):
+        li = []
+        nodes = Nodes.objects.all()
+
+        # res_dict = json.loads(serializers.serialize('json',nodes))
+        for i in nodes:
+            li.append(model_to_dict(i))
+        count = len(li)
+        p = request.GET.get("p")
+        if p == None:
+            p = 1
+        # total_page = int(int(count) / 10 + 1)
+        # total_page = int(count)%10 == 0?int(count)//3:int(count) //3 +1;
+        if(int(count)%10 == 0):
+            total_page = int(count)//10
+        else:
+            total_page = int(count) // 10 + 1
+        res = li[(int(p) - 1) * 10:int(p) * 10]
+        data = {
+            "res": res,
+            "total_page": total_page,
+            "current_page": p
+        }
+        print(data)
+        return render(request, 'clsp/nodes_list.html', data)
 
 
 
@@ -148,6 +166,45 @@ def news_type(request):
 def news_edit(request):
 
     return render(request, 'clsp/news_edit.html')
+
+#节点管理/节点更新
+class NodesUpdate(View):
+    def post(self, request):
+        byte_str = request.body.decode()
+        req_data = json.loads(byte_str)
+        print(req_data)
+        sHandler = req_data.get("sHandler")
+
+        if(sHandler == "delete"):
+            id = req_data.get("id")
+            node = Nodes.objects.get(id=int(id))
+            node.delete()
+        elif(sHandler == "edit" ):
+            describe = req_data.get("describe").strip()
+            ip = req_data.get("ip")
+            hostname = req_data.get("hostname")
+            id = req_data.get("id")
+            try:
+                res = Nodes.objects.filter(id=id).update(host_name=hostname,ip=ip,describe=describe)
+                logger.info("更新了"+res+"个模块")
+            except Exception as e:
+                logger.error(e)
+        elif(sHandler == "insert"):
+            ip = req_data.get("ip")
+            hostname = req_data.get("hostname")
+            id = req_data.get("id")
+            describe = req_data.get("describe").strip()
+            Nodes.objects.create(
+                ip=ip,
+                host_name=hostname,
+                describe=describe
+            )
+
+        response = {
+            "status":"ok"
+        }
+        return JsonResponse(json.dumps(response), safe=False)
+
 
 
 def news_review_detail(request):
